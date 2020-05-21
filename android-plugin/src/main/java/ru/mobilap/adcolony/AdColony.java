@@ -1,4 +1,4 @@
-package org.godotengine.godot;
+package ru.mobilap.adcolony;
 
 import android.app.Activity;
 import android.content.res.Resources;
@@ -13,10 +13,17 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.FrameLayout;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.HashMap;
 import java.util.Locale;
 
-import com.adcolony.sdk.AdColony;
+import org.godotengine.godot.Godot;
+import org.godotengine.godot.GodotLib;
+import org.godotengine.godot.plugin.GodotPlugin;
+import org.godotengine.godot.plugin.SignalInfo;
+
+//import com.adcolony.sdk.AdColony;
 import com.adcolony.sdk.AdColonyAdOptions;
 import com.adcolony.sdk.AdColonyAdSize;
 import com.adcolony.sdk.AdColonyAdView;
@@ -29,9 +36,9 @@ import com.adcolony.sdk.AdColonyRewardListener;
 import com.adcolony.sdk.AdColonyUserMetadata;
 import com.adcolony.sdk.AdColonyZone;
 
-public class GodotAdcolony extends Godot.SingletonBase
+public class AdColony extends GodotPlugin 
 {
-    private final String TAG = GodotAdcolony.class.getName();
+    private final String TAG = AdColony.class.getName();
     private Activity activity = null; // The main activity of the game
 
     private HashMap<String, View> zombieBanners = new HashMap<>();
@@ -65,7 +72,7 @@ public class GodotAdcolony extends Godot.SingletonBase
             .setTestModeEnabled(!ProductionMode)
             .setGDPRRequired(false)
             .setKeepScreenOn(true);
-        AdColony.configure(activity, appOptions, appId, zoneArray);
+        com.adcolony.sdk.AdColony.configure(activity, appOptions, appId, zoneArray);
 
         /*
           AdColonyUserMetadata metadata = new AdColonyUserMetadata()
@@ -79,7 +86,7 @@ public class GodotAdcolony extends Godot.SingletonBase
         //adOptions.enableResultsDialog(true);
 
         // Create and set a reward listener
-        AdColony.setRewardListener(new AdColonyRewardListener() {
+        com.adcolony.sdk.AdColony.setRewardListener(new AdColonyRewardListener() {
                 @Override
                 public void onReward(AdColonyReward reward) {
                     // Query reward object for info here
@@ -139,7 +146,7 @@ public class GodotAdcolony extends Godot.SingletonBase
         activity.runOnUiThread(new Runnable() {
                 @Override public void run() {
                     callbacks.put(id, callback_id);
-                    AdColony.requestInterstitial(id, makeRewardedListener(id, callback_id), adOptions);
+                    com.adcolony.sdk.AdColony.requestInterstitial(id, makeRewardedListener(id, callback_id), adOptions);
                 }
             });
     }
@@ -224,7 +231,7 @@ public class GodotAdcolony extends Godot.SingletonBase
         activity.runOnUiThread(new Runnable() {
                 @Override public void run() {
                     if(!banners.containsKey(id)) {
-                        AdColony.requestAdView(id, makeBannerListener(id, isOnTop, callback_id), AdColonyAdSize.BANNER, adOptions);
+                        com.adcolony.sdk.AdColony.requestAdView(id, makeBannerListener(id, isOnTop, callback_id), AdColonyAdSize.BANNER, adOptions);
                     } else {
                         Log.w(TAG, "Banner already loaded: " + id);
                     }
@@ -414,7 +421,7 @@ public class GodotAdcolony extends Godot.SingletonBase
         activity.runOnUiThread(new Runnable() {
                 @Override public void run() {
                     // Load an ad for a given zone
-                    AdColony.requestInterstitial(id, makeInterstitialListener(id, callback_id), adOptions);
+                    com.adcolony.sdk.AdColony.requestInterstitial(id, makeInterstitialListener(id, callback_id), adOptions);
                 }
             });
     }
@@ -438,32 +445,40 @@ public class GodotAdcolony extends Godot.SingletonBase
 
     /* Definitions
      * ********************************************************************** */
-
-    /**
-     * Initilization Singleton
-     * @param Activity The main activity
-     */
-    static public Godot.SingletonBase initialize(Activity activity)
+    public AdColony(Godot godot) 
     {
-        return new GodotAdcolony(activity);
+        super(godot);
+        activity = godot;
     }
 
-    /**
-     * Constructor
-     * @param Activity Main activity
-     */
-    public GodotAdcolony(Activity p_activity) {
-        registerClass("Adcolony", new String[] {
-                "init",
-                "initWithContentRating",
-                // banner
-                "loadBanner", "showBanner", "hideBanner", "removeBanner", "getBannerWidth", "getBannerHeight",
-                "makeZombieBanner", "killZombieBanner",
-                // Interstitial
-                "loadInterstitial", "showInterstitial",
-                // Rewarded video
-                "loadRewardedVideo", "showRewardedVideo"
-            });
-        activity = p_activity;
+    @Override
+    public String getPluginName() {
+        return "AdColony";
+    }
+
+    @Override
+    public List<String> getPluginMethods() {
+        return Arrays.asList(
+                             "init",
+                             // banner
+                             "loadBanner", "showBanner", "hideBanner", "removeBanner", "getBannerWidth", "getBannerHeight",
+                             "makeZombieBanner", "killZombieBanner",
+                             // Interstitial
+                             "loadInterstitial", "showInterstitial",
+                             // Rewarded video
+                             "loadRewardedVideo", "showRewardedVideo"
+                             );
+    }
+
+    /*
+    @Override
+    public Set<SignalInfo> getPluginSignals() {
+        return Collections.singleton(loggedInSignal);
+    }
+    */
+
+    @Override
+    public View onMainCreateView(Activity activity) {
+        return null;
     }
 }

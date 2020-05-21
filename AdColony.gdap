@@ -1,0 +1,11 @@
+[config]
+
+name="AdColony"
+binary_type="remote"
+binary="ru.mobilap.godot:godot-adcolony:+"
+
+[dependencies]
+
+local=[]
+remote=[]
+custom_maven_repos=["https://dl.bintray.com/mobilap/maven/"]
