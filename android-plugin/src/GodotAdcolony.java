@@ -32,31 +32,33 @@ import com.adcolony.sdk.AdColonyZone;
 public class GodotAdcolony extends Godot.SingletonBase
 {
     private final String TAG = GodotAdcolony.class.getName();
-	private Activity activity = null; // The main activity of the game
+    private Activity activity = null; // The main activity of the game
 
+    private HashMap<String, View> zombieBanners = new HashMap<>();
+    private HashMap<String, FrameLayout.LayoutParams> bannerParams = new HashMap<>();
     private HashMap<String, Integer> callbacks = new HashMap<>();
     private HashMap<String, AdColonyInterstitial> interstitials = new HashMap<>();
     private HashMap<String, AdColonyAdView> banners = new HashMap<>();
     private HashMap<String, AdColonyInterstitial> rewardeds = new HashMap<>();
 
-	private boolean ProductionMode = true; // Store if is real or not
+    private boolean ProductionMode = true; // Store if is real or not
 
-	private FrameLayout layout = null; // Store the layout
+    private FrameLayout layout = null; // Store the layout
     private AdColonyAdOptions adOptions;
 
-	/* Init
-	 * ********************************************************************** */
+    /* Init
+     * ********************************************************************** */
 
-	/**
-	 * Prepare for work with YandexAds
-	 * @param boolean ProductionMode Tell if the enviroment is for real or test
-	 * @param int gdscript instance id
-	 */
-	public void init(final String appId, final String zoneIds, boolean ProductionMode) {
+    /**
+     * Prepare for work with YandexAds
+     * @param boolean ProductionMode Tell if the enviroment is for real or test
+     * @param int gdscript instance id
+     */
+    public void init(final String appId, final String zoneIds, boolean ProductionMode) {
 
         String[] zoneArray = zoneIds.split(",");
         
-		this.ProductionMode = ProductionMode;
+        this.ProductionMode = ProductionMode;
         layout = (FrameLayout)activity.getWindow().getDecorView().getRootView();
 
         AdColonyAppOptions appOptions = new AdColonyAppOptions()
@@ -66,10 +68,10 @@ public class GodotAdcolony extends Godot.SingletonBase
         AdColony.configure(activity, appOptions, appId, zoneArray);
 
         /*
-        AdColonyUserMetadata metadata = new AdColonyUserMetadata()
-            .setUserAge(26)
-            .setUserEducation(AdColonyUserMetadata.USER_EDUCATION_BACHELORS_DEGREE)
-            .setUserGender(AdColonyUserMetadata.USER_MALE);
+          AdColonyUserMetadata metadata = new AdColonyUserMetadata()
+          .setUserAge(26)
+          .setUserEducation(AdColonyUserMetadata.USER_EDUCATION_BACHELORS_DEGREE)
+          .setUserGender(AdColonyUserMetadata.USER_MALE);
         */
         adOptions = new AdColonyAdOptions();
         //adOptions.setUserMetadata(metadata);
@@ -78,20 +80,20 @@ public class GodotAdcolony extends Godot.SingletonBase
 
         // Create and set a reward listener
         AdColony.setRewardListener(new AdColonyRewardListener() {
-            @Override
-            public void onReward(AdColonyReward reward) {
-                // Query reward object for info here
-                Log.d( TAG, "onReward" );
-                int callback_id = callbacks.get(reward.getZoneID());
-                if(reward.success()) {
-                    GodotLib.calldeferred(callback_id, "_on_rewarded", new Object[] { reward.getZoneID(), reward.getRewardName(), reward.getRewardAmount() });
+                @Override
+                public void onReward(AdColonyReward reward) {
+                    // Query reward object for info here
+                    Log.d( TAG, "onReward" );
+                    int callback_id = callbacks.get(reward.getZoneID());
+                    if(reward.success()) {
+                        GodotLib.calldeferred(callback_id, "_on_rewarded", new Object[] { reward.getZoneID(), reward.getRewardName(), reward.getRewardAmount() });
+                    }
                 }
-            }
-        });
-	}
+            });
+    }
 
-	/* Rewarded Video
-	 * ********************************************************************** */
+    /* Rewarded Video
+     * ********************************************************************** */
     private AdColonyInterstitialListener makeRewardedListener(final String id, final int callback_id)
     {
         return new AdColonyInterstitialListener() {
@@ -129,37 +131,37 @@ public class GodotAdcolony extends Godot.SingletonBase
         };
     }
 
-	/**
-	 * Load a Rewarded Video
-	 * @param String id AdMod Rewarded video ID
-	 */
-	public void loadRewardedVideo(final String id, final int callback_id) {
-		activity.runOnUiThread(new Runnable() {
-			@Override public void run() {
-                callbacks.put(id, callback_id);
-                AdColony.requestInterstitial(id, makeRewardedListener(id, callback_id), adOptions);
-			}
-		});
-	}
-
-	/**
-	 * Show a Rewarded Video
-	 */
-	public void showRewardedVideo(final String id) {
-		activity.runOnUiThread(new Runnable() {
-			@Override public void run() {
-                if(rewardeds.containsKey(id)) {
-                    AdColonyInterstitial rewarded = rewardeds.get(id);
-                    rewarded.show();
-                } else {
-                    Log.w(TAG, "showRewardedVideo - rewarded not loaded");
+    /**
+     * Load a Rewarded Video
+     * @param String id AdMod Rewarded video ID
+     */
+    public void loadRewardedVideo(final String id, final int callback_id) {
+        activity.runOnUiThread(new Runnable() {
+                @Override public void run() {
+                    callbacks.put(id, callback_id);
+                    AdColony.requestInterstitial(id, makeRewardedListener(id, callback_id), adOptions);
                 }
-			}
-		});
-	}
+            });
+    }
 
-	/* Banner
-	 * ********************************************************************** */
+    /**
+     * Show a Rewarded Video
+     */
+    public void showRewardedVideo(final String id) {
+        activity.runOnUiThread(new Runnable() {
+                @Override public void run() {
+                    if(rewardeds.containsKey(id)) {
+                        AdColonyInterstitial rewarded = rewardeds.get(id);
+                        rewarded.show();
+                    } else {
+                        Log.w(TAG, "showRewardedVideo - rewarded not loaded");
+                    }
+                }
+            });
+    }
+
+    /* Banner
+     * ********************************************************************** */
 
     private AdColonyAdViewListener makeBannerListener(final String id, final boolean isOnTop, final int callback_id)
     {
@@ -174,8 +176,7 @@ public class GodotAdcolony extends Godot.SingletonBase
                 if(isOnTop) adParams.gravity = Gravity.TOP;
                 else adParams.gravity = Gravity.BOTTOM;
                 adColonyAdView.setBackgroundColor(/* Color.WHITE */Color.TRANSPARENT);
-                layout.addView(adColonyAdView, adParams);
-                adColonyAdView.setVisibility(View.GONE);
+                bannerParams.put(id, adParams);
             }
 
             @Override
@@ -206,51 +207,61 @@ public class GodotAdcolony extends Godot.SingletonBase
         };
     }
 
-	/**
-	 * Load a banner
-	 * @param String id AdMod Banner ID
-	 * @param boolean isOnTop To made the banner top or bottom
-	 */
-	public void loadBanner(final String id, final boolean isOnTop, final int callback_id)
-	{
-		activity.runOnUiThread(new Runnable() {
-			@Override public void run() {
-                if(!banners.containsKey(id)) {
-                    AdColony.requestAdView(id, makeBannerListener(id, isOnTop, callback_id), AdColonyAdSize.BANNER, adOptions);
-				} else {
-                    Log.w(TAG, "Banner already loaded: " + id);
-                }
-			}
-		});
-	}
 
-	/**
-	 * Show the banner
-	 */
-	public void showBanner(final String id)
-	{
-		activity.runOnUiThread(new Runnable() {
-			@Override public void run() {
-                if(banners.containsKey(id)) {
-                    AdColonyAdView b = banners.get(id);
-                    b.setVisibility(View.VISIBLE);
-                    for (String key : banners.keySet()) {
-                        if(!key.equals(id)) {
-                            AdColonyAdView b2 = banners.get(key);
-                            b2.setVisibility(View.GONE);
-                        }
+    private void placeBannerOnScreen(final String id, final AdColonyAdView banner)
+    {
+        FrameLayout.LayoutParams adParams = bannerParams.get(id);
+        layout.addView(banner, adParams);
+    }
+
+    /**
+     * Load a banner
+     * @param String id AdMod Banner ID
+     * @param boolean isOnTop To made the banner top or bottom
+     */
+    public void loadBanner(final String id, final boolean isOnTop, final int callback_id)
+    {
+        activity.runOnUiThread(new Runnable() {
+                @Override public void run() {
+                    if(!banners.containsKey(id)) {
+                        AdColony.requestAdView(id, makeBannerListener(id, isOnTop, callback_id), AdColonyAdSize.BANNER, adOptions);
+                    } else {
+                        Log.w(TAG, "Banner already loaded: " + id);
                     }
-                    Log.d(TAG, "Show Banner");
-                } else {
-                    Log.w(TAG, "Banner not found: "+id);
                 }
-			}
-		});
-	}
+            });
+    }
+
+    /**
+     * Show the banner
+     */
+    public void showBanner(final String id)
+    {
+        activity.runOnUiThread(new Runnable() {
+                @Override public void run() {
+                    if(banners.containsKey(id)) {
+                        AdColonyAdView b = banners.get(id);
+                        if(b.getParent() == null) {
+                            placeBannerOnScreen(id, b);
+                        }
+                        b.setVisibility(View.VISIBLE);
+                        for (String key : banners.keySet()) {
+                            if(!key.equals(id)) {
+                                AdColonyAdView b2 = banners.get(key);
+                                b2.setVisibility(View.GONE);
+                            }
+                        }
+                        Log.d(TAG, "Show Banner");
+                    } else {
+                        Log.w(TAG, "Banner not found: "+id);
+                    }
+                }
+            });
+    }
 
     public void removeBanner(final String id)
     {
-		activity.runOnUiThread(new Runnable() {
+        activity.runOnUiThread(new Runnable() {
                 @Override public void run() {
                     if(banners.containsKey(id)) {
                         AdColonyAdView b = banners.get(id);
@@ -265,30 +276,30 @@ public class GodotAdcolony extends Godot.SingletonBase
             });
     }
 
-	/**
-	 * Hide the banner
-	 */
-	public void hideBanner(final String id)
-	{
-		activity.runOnUiThread(new Runnable() {
-			@Override public void run() {
-                if(banners.containsKey(id)) {
-                    AdColonyAdView b = banners.get(id);
-                    b.setVisibility(View.GONE);
-                    Log.d(TAG, "Hide Banner");
-                } else {
-                    Log.w(TAG, "Banner not found: "+id);
+    /**
+     * Hide the banner
+     */
+    public void hideBanner(final String id)
+    {
+        activity.runOnUiThread(new Runnable() {
+                @Override public void run() {
+                    if(banners.containsKey(id)) {
+                        AdColonyAdView b = banners.get(id);
+                        b.setVisibility(View.GONE);
+                        Log.d(TAG, "Hide Banner");
+                    } else {
+                        Log.w(TAG, "Banner not found: "+id);
+                    }
                 }
-			}
-		});
-	}
+            });
+    }
 
-	/**
-	 * Get the banner width
-	 * @return int Banner width
-	 */
-	public int getBannerWidth(final String id)
-	{
+    /**
+     * Get the banner width
+     * @return int Banner width
+     */
+    public int getBannerWidth(final String id)
+    {
         if(banners.containsKey(id)) {
             AdColonyAdView b = banners.get(id);
             if(b != null) {
@@ -300,14 +311,14 @@ public class GodotAdcolony extends Godot.SingletonBase
                 return w;
             } else return 0;
         } else return 0;
-	}
+    }
 
-	/**
-	 * Get the banner height
-	 * @return int Banner height
-	 */
-	public int getBannerHeight(final String id)
-	{
+    /**
+     * Get the banner height
+     * @return int Banner height
+     */
+    public int getBannerHeight(final String id)
+    {
         if(banners.containsKey(id)) {
             AdColonyAdView b = banners.get(id);
             if(b != null) {
@@ -322,10 +333,41 @@ public class GodotAdcolony extends Godot.SingletonBase
         } else {
             return 0;
         }
-	}
+    }
 
-	/* Interstitial
-	 * ********************************************************************** */
+    public String makeZombieBanner(final String id)
+    {
+        if (banners.containsKey(id)) {
+            AdColonyAdView b = banners.get(id);
+            String zid = java.util.UUID.randomUUID().toString();
+            banners.remove(id);
+            zombieBanners.put(zid, b);
+            Log.i(TAG, "makeZombieBanner: OK");
+            return zid;
+        } else {
+            Log.w(TAG, "makeZombieBanner: Banner not found: "+id);
+            return "";
+        }
+    }
+
+    public void killZombieBanner(final String zid)
+    {
+        activity.runOnUiThread(new Runnable() {
+                @Override public void run() {
+                    if (zombieBanners.containsKey(zid)) {
+                        View z = zombieBanners.get(zid);
+                        zombieBanners.remove(zid);
+                        layout.removeView(z); // Remove the zombie banner
+                        Log.w(TAG, "killZombieBanner: OK");
+                    } else {
+                        Log.w(TAG, "killZombieBanner: Banner not found: "+zid);
+                    }
+                }
+            });
+    }
+
+    /* Interstitial
+     * ********************************************************************** */
     private AdColonyInterstitialListener makeInterstitialListener(final String id, final int callback_id)
     {
         return new AdColonyInterstitialListener() {
@@ -363,64 +405,65 @@ public class GodotAdcolony extends Godot.SingletonBase
     }
 
 
-	/**
-	 * Load a interstitial
-	 * @param String id AdMod Interstitial ID
-	 */
-	public void loadInterstitial(final String id, final int callback_id)
-	{
-		activity.runOnUiThread(new Runnable() {
-			@Override public void run() {
-                // Load an ad for a given zone
-                AdColony.requestInterstitial(id, makeInterstitialListener(id, callback_id), adOptions);
-			}
-		});
-	}
-
-	/**
-	 * Show the interstitial
-	 */
-	public void showInterstitial(final String id)
-	{
-		activity.runOnUiThread(new Runnable() {
-			@Override public void run() {
-                if(interstitials.containsKey(id)) {
-                    AdColonyInterstitial interstitial = interstitials.get(id);
-                    interstitial.show();
-                } else {
-                    Log.w(TAG, "Interstitial not found: " + id);
+    /**
+     * Load a interstitial
+     * @param String id AdMod Interstitial ID
+     */
+    public void loadInterstitial(final String id, final int callback_id)
+    {
+        activity.runOnUiThread(new Runnable() {
+                @Override public void run() {
+                    // Load an ad for a given zone
+                    AdColony.requestInterstitial(id, makeInterstitialListener(id, callback_id), adOptions);
                 }
-			}
-		});
-	}
+            });
+    }
 
-	/* Definitions
-	 * ********************************************************************** */
+    /**
+     * Show the interstitial
+     */
+    public void showInterstitial(final String id)
+    {
+        activity.runOnUiThread(new Runnable() {
+                @Override public void run() {
+                    if(interstitials.containsKey(id)) {
+                        AdColonyInterstitial interstitial = interstitials.get(id);
+                        interstitial.show();
+                    } else {
+                        Log.w(TAG, "Interstitial not found: " + id);
+                    }
+                }
+            });
+    }
 
-	/**
-	 * Initilization Singleton
-	 * @param Activity The main activity
-	 */
- 	static public Godot.SingletonBase initialize(Activity activity)
- 	{
- 		return new GodotAdcolony(activity);
- 	}
+    /* Definitions
+     * ********************************************************************** */
 
-	/**
-	 * Constructor
-	 * @param Activity Main activity
-	 */
-	public GodotAdcolony(Activity p_activity) {
-		registerClass("Adcolony", new String[] {
-			"init",
-			"initWithContentRating",
-			// banner
-			"loadBanner", "showBanner", "hideBanner", "removeBanner", "getBannerWidth", "getBannerHeight",
-			// Interstitial
-			"loadInterstitial", "showInterstitial",
-			// Rewarded video
-			"loadRewardedVideo", "showRewardedVideo"
-		});
-		activity = p_activity;
-	}
+    /**
+     * Initilization Singleton
+     * @param Activity The main activity
+     */
+    static public Godot.SingletonBase initialize(Activity activity)
+    {
+        return new GodotAdcolony(activity);
+    }
+
+    /**
+     * Constructor
+     * @param Activity Main activity
+     */
+    public GodotAdcolony(Activity p_activity) {
+        registerClass("Adcolony", new String[] {
+                "init",
+                "initWithContentRating",
+                // banner
+                "loadBanner", "showBanner", "hideBanner", "removeBanner", "getBannerWidth", "getBannerHeight",
+                "makeZombieBanner", "killZombieBanner",
+                // Interstitial
+                "loadInterstitial", "showInterstitial",
+                // Rewarded video
+                "loadRewardedVideo", "showRewardedVideo"
+            });
+        activity = p_activity;
+    }
 }
