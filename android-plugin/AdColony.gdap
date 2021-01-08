@@ -1,8 +1,8 @@
 [config]
 
 name="AdColony"
-binary_type="remote"
-binary="ru.mobilap.godot:godot-adcolony:+"
+binary_type="local"
+binary="AdColony.release.aar"
 
 [dependencies]
 
