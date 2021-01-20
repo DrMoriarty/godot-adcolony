@@ -1,9 +1,14 @@
 {
   "name": "adcolony",
   "description": "AdColony plugin. Ad network for mobile applications.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "license": "MIT",
   "url": "https://github.com/DrMoriarty/godot-adcolony",
+  "author": {
+    "name": "DrMoriarty",
+    "url": "https://github.com/DrMoriarty",
+    "donate": "https://ko-fi.com/drmoriarty"
+  },
   "dependencies": [
   ],
   "files": {
@@ -14,7 +19,7 @@
       "info": "Set your App ID here"
     },
     "AdColony/ZoneId": {
-      "info": "Set you Zone ID here"
+      "info": "Set your Zone ID here (separate by comma if more than one zone)"
     }
   },
   "autoload": {

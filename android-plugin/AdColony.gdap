@@ -7,5 +7,5 @@ binary="AdColony.release.aar"
 [dependencies]
 
 local=[]
-remote=[]
-custom_maven_repos=["https://dl.bintray.com/mobilap/maven/"]
+remote=["com.adcolony:sdk:4.4.0"]
+custom_maven_repos=["https://adcolony.bintray.com/AdColony"]

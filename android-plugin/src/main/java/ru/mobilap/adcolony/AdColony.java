@@ -39,7 +39,6 @@ import com.adcolony.sdk.AdColonyZone;
 public class AdColony extends GodotPlugin 
 {
     private final String TAG = AdColony.class.getName();
-    private Activity activity = null; // The main activity of the game
 
     private HashMap<String, View> zombieBanners = new HashMap<>();
     private HashMap<String, FrameLayout.LayoutParams> bannerParams = new HashMap<>();
@@ -66,13 +65,13 @@ public class AdColony extends GodotPlugin
         String[] zoneArray = zoneIds.split(",");
         
         this.ProductionMode = ProductionMode;
-        layout = (FrameLayout)activity.getWindow().getDecorView().getRootView();
+        layout = (FrameLayout)getActivity().getWindow().getDecorView().getRootView();
 
         AdColonyAppOptions appOptions = new AdColonyAppOptions()
             .setTestModeEnabled(!ProductionMode)
             .setGDPRRequired(false)
             .setKeepScreenOn(true);
-        com.adcolony.sdk.AdColony.configure(activity, appOptions, appId, zoneArray);
+        com.adcolony.sdk.AdColony.configure(getActivity(), appOptions, appId, zoneArray);
 
         /*
           AdColonyUserMetadata metadata = new AdColonyUserMetadata()
@@ -143,7 +142,7 @@ public class AdColony extends GodotPlugin
      * @param String id AdMod Rewarded video ID
      */
     public void loadRewardedVideo(final String id, final int callback_id) {
-        activity.runOnUiThread(new Runnable() {
+        getActivity().runOnUiThread(new Runnable() {
                 @Override public void run() {
                     callbacks.put(id, callback_id);
                     com.adcolony.sdk.AdColony.requestInterstitial(id, makeRewardedListener(id, callback_id), adOptions);
@@ -155,7 +154,7 @@ public class AdColony extends GodotPlugin
      * Show a Rewarded Video
      */
     public void showRewardedVideo(final String id) {
-        activity.runOnUiThread(new Runnable() {
+        getActivity().runOnUiThread(new Runnable() {
                 @Override public void run() {
                     if(rewardeds.containsKey(id)) {
                         AdColonyInterstitial rewarded = rewardeds.get(id);
@@ -228,7 +227,7 @@ public class AdColony extends GodotPlugin
      */
     public void loadBanner(final String id, final boolean isOnTop, final int callback_id)
     {
-        activity.runOnUiThread(new Runnable() {
+        getActivity().runOnUiThread(new Runnable() {
                 @Override public void run() {
                     if(!banners.containsKey(id)) {
                         com.adcolony.sdk.AdColony.requestAdView(id, makeBannerListener(id, isOnTop, callback_id), AdColonyAdSize.BANNER, adOptions);
@@ -244,7 +243,7 @@ public class AdColony extends GodotPlugin
      */
     public void showBanner(final String id)
     {
-        activity.runOnUiThread(new Runnable() {
+        getActivity().runOnUiThread(new Runnable() {
                 @Override public void run() {
                     if(banners.containsKey(id)) {
                         AdColonyAdView b = banners.get(id);
@@ -268,7 +267,7 @@ public class AdColony extends GodotPlugin
 
     public void removeBanner(final String id)
     {
-        activity.runOnUiThread(new Runnable() {
+        getActivity().runOnUiThread(new Runnable() {
                 @Override public void run() {
                     if(banners.containsKey(id)) {
                         AdColonyAdView b = banners.get(id);
@@ -288,7 +287,7 @@ public class AdColony extends GodotPlugin
      */
     public void hideBanner(final String id)
     {
-        activity.runOnUiThread(new Runnable() {
+        getActivity().runOnUiThread(new Runnable() {
                 @Override public void run() {
                     if(banners.containsKey(id)) {
                         AdColonyAdView b = banners.get(id);
@@ -312,7 +311,7 @@ public class AdColony extends GodotPlugin
             if(b != null) {
                 int w = b.getWidth();
                 if(w == 0) {
-                    Resources r = activity.getResources();
+                    Resources r = getActivity().getResources();
                     w = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, b.getAdSize().getWidth(), r.getDisplayMetrics());
                 }
                 return w;
@@ -331,7 +330,7 @@ public class AdColony extends GodotPlugin
             if(b != null) {
                 int h = b.getHeight();
                 if(h == 0) {
-                    Resources r = activity.getResources();
+                    Resources r = getActivity().getResources();
                     h = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, b.getAdSize().getHeight(), r.getDisplayMetrics());
                 }
                 return h;
@@ -359,7 +358,7 @@ public class AdColony extends GodotPlugin
 
     public void killZombieBanner(final String zid)
     {
-        activity.runOnUiThread(new Runnable() {
+        getActivity().runOnUiThread(new Runnable() {
                 @Override public void run() {
                     if (zombieBanners.containsKey(zid)) {
                         View z = zombieBanners.get(zid);
@@ -418,7 +417,7 @@ public class AdColony extends GodotPlugin
      */
     public void loadInterstitial(final String id, final int callback_id)
     {
-        activity.runOnUiThread(new Runnable() {
+        getActivity().runOnUiThread(new Runnable() {
                 @Override public void run() {
                     // Load an ad for a given zone
                     com.adcolony.sdk.AdColony.requestInterstitial(id, makeInterstitialListener(id, callback_id), adOptions);
@@ -431,7 +430,7 @@ public class AdColony extends GodotPlugin
      */
     public void showInterstitial(final String id)
     {
-        activity.runOnUiThread(new Runnable() {
+        getActivity().runOnUiThread(new Runnable() {
                 @Override public void run() {
                     if(interstitials.containsKey(id)) {
                         AdColonyInterstitial interstitial = interstitials.get(id);
@@ -448,7 +447,6 @@ public class AdColony extends GodotPlugin
     public AdColony(Godot godot) 
     {
         super(godot);
-        activity = godot;
     }
 
     @Override
