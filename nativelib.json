@@ -1,16 +1,17 @@
 {
   "name": "adcolony",
-  "description": "AdColony plugin. Ad network for mobile applications.",
-  "version": "0.2.0",
+  "display_name": "AdColony",
+  "description": "AdColony SDK. Ad network for mobile applications.",
+  "version": "0.2.1",
+  "godot_version": "3.2.3",
   "license": "MIT",
   "url": "https://github.com/DrMoriarty/godot-adcolony",
+  "category": "misc",
   "author": {
     "name": "DrMoriarty",
     "url": "https://github.com/DrMoriarty",
     "donate": "https://ko-fi.com/drmoriarty"
   },
-  "dependencies": [
-  ],
   "files": {
     "scripts": "scripts"
   },
