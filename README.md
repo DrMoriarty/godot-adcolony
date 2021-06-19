@@ -10,6 +10,18 @@ Wrapper on gd-script will be in your autoloading list. Use global name `adcolony
 
 ## API
 
+Everywhere where you see `callback_id` it is an identifier of object which has callback functions (described below). Common usage will be:
+```
+func _ready():
+  adcolony.loadInterstitial("zone id", get_instance_id())
+
+func _on_interstitial_loaded(id: String) -> void:
+  adcolony.showInterstitial(id)
+
+func _on_interstitial_failed_to_load(id: String, error: String) -> void:
+  print("Interstitial failed with id: %s, error: %s"%[id, error])
+```
+
 ### loadBanner(id: String, isTop: bool, callback_id: int)
 
 Load banner with specific zone ID. `callback_id` is instance_id from callback object.
