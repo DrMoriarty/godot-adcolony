@@ -49,7 +49,7 @@ dependencies {
      library when building the final binary.
      */
     compileOnly fileTree(dir: 'libs', include: ['godot-lib*.aar'])
-    implementation 'com.adcolony:sdk:4.4.+'
+    implementation 'com.adcolony:sdk:4.5.+'
     implementation 'com.google.android.gms:play-services-ads-identifier:17.0.0'
 }
 
